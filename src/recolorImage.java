@@ -14,8 +14,7 @@ public class recolorImage {
         BufferedImage resultImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
         long startTime = System.currentTimeMillis();
-        recolorMultiThreaded(originalImage, resultImage, 10);
-//        recolorSingleThread(originalImage, resultImage);
+        recolorImageMain(originalImage, resultImage, 10);
         long endTime = System.currentTimeMillis();
 
         long duration = endTime - startTime;
@@ -24,6 +23,14 @@ public class recolorImage {
         ImageIO.write(resultImage, "jpg", outputFile);
 
         System.out.println(String.valueOf(duration));
+    }
+
+    public static void recolorImageMain(BufferedImage originalImage, BufferedImage resultImage, int numberOfThreads) {
+        if (numberOfThreads == 1) {
+            recolorSingleThread(originalImage, resultImage);
+        } else {
+            recolorMultiThreaded(originalImage, resultImage, numberOfThreads);
+        }
     }
 
     public static void recolorMultiThreaded(BufferedImage originalImage, BufferedImage resultImage, int numberOfThreads) {
