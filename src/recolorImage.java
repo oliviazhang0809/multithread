@@ -2,6 +2,8 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class recolorImage {
     public static final String SOURCE_FILE = "./resources/many-flowers.jpg";
@@ -11,10 +13,47 @@ public class recolorImage {
         BufferedImage originalImage = ImageIO.read(new File(SOURCE_FILE));
         BufferedImage resultImage = new BufferedImage(originalImage.getWidth(), originalImage.getHeight(), BufferedImage.TYPE_INT_RGB);
 
-        recolorSingleThread(originalImage, resultImage);
+        long startTime = System.currentTimeMillis();
+        recolorMultiThreaded(originalImage, resultImage, 10);
+//        recolorSingleThread(originalImage, resultImage);
+        long endTime = System.currentTimeMillis();
+
+        long duration = endTime - startTime;
 
         File outputFile = new File(DESTINATION_FILE);
         ImageIO.write(resultImage, "jpg", outputFile);
+
+        System.out.println(String.valueOf(duration));
+    }
+
+    public static void recolorMultiThreaded(BufferedImage originalImage, BufferedImage resultImage, int numberOfThreads) {
+        List<Thread> threads = new ArrayList<>();
+        int width = originalImage.getWidth();
+        int height = originalImage.getHeight() / numberOfThreads;
+
+        for (int i = 0; i < numberOfThreads; i++) {
+            final int threadMultiplier = i;
+
+            Thread thread = new Thread(() -> {
+                int leftCorner = 0;
+                int topCorner = height * threadMultiplier;
+
+                recolorImage(originalImage, resultImage, leftCorner, topCorner, width, height);
+            });
+            threads.add(thread);
+        }
+
+        for (Thread thread : threads) {
+            thread.start();
+        }
+
+        for (Thread thread : threads) {
+            try {
+                thread.join();
+            } catch (InterruptedException e) {
+
+            }
+        }
     }
 
     public static void recolorSingleThread(BufferedImage originalImage, BufferedImage resultImage) {
