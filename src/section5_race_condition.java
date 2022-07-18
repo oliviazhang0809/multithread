@@ -48,16 +48,24 @@ public class section5_race_condition {
     public static class InventoryCounter {
         private static int item = 0;
 
+        Object lock = new Object();
+
         public void increment() {
-            item++;
+            synchronized (this.lock) { // synchronized is locking on object level, using this way instead of public synchronized void (to lock all methods) is more efficient
+                item++;
+            }
         }
 
         public void decrement() {
-            item--;
+            synchronized (this.lock) {
+                item--;
+            }
         }
 
         public int getItem() {
-            return item;
+            synchronized (this.lock) {
+                return item;
+            }
         }
     }
 }
